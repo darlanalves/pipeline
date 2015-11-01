@@ -68,6 +68,8 @@ var PipelineContext = (function () {
                         method: step.request,
                         context: step
                     });
+                } else {
+                    stepGroups.request.push(null);
                 }
 
                 if (step.requestError) {
@@ -75,6 +77,8 @@ var PipelineContext = (function () {
                         method: step.requestError,
                         context: step
                     });
+                } else {
+                    stepGroups.requestError.push(null);
                 }
 
                 if (step.response) {
@@ -82,6 +86,8 @@ var PipelineContext = (function () {
                         method: step.response,
                         context: step
                     });
+                } else {
+                    stepGroups.response.push(null);
                 }
 
                 if (step.responseError) {
@@ -89,10 +95,16 @@ var PipelineContext = (function () {
                         method: step.responseError,
                         context: step
                     });
+                } else {
+                    stepGroups.responseError.push(null);
                 }
             });
 
-            if (!stepGroups.request.length) {
+            var validPipeline = stepGroups.request.some(function (step) {
+                return step !== null;
+            });
+
+            if (!validPipeline) {
                 throw new Error('This pipeline cannot handle requests');
             }
 
@@ -118,12 +130,24 @@ var PipelineContext = (function () {
             var result = Promise.resolve(this.value);
 
             if (processors.length) {
-                // chain output processors into a stream of promises
-                result = processors.reduce(function (promise, processor) {
-                    return promise.then(function (value) {
+                // chain output processors into a stream of promises, but in reverse order,
+                // starting from the index where the result was dispatched
+                var index = this.index + 1;
+
+                var _loop = function () {
+                    var processor = processors[index];
+                    if (!processor) return 'continue';
+
+                    result = result.then(function (value) {
                         return processor.method.call(processor.context, value);
                     });
-                }, result);
+                };
+
+                while (index--) {
+                    var _ret = _loop();
+
+                    if (_ret === 'continue') continue;
+                }
             }
 
             this.__resolve(result);
