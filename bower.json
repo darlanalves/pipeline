@@ -1,7 +1,7 @@
 {
     "name": "pipeline",
     "description": "A bidirectional pipeline to chain data processing (similar to streams)",
-    "version": "0.0.0",
+    "version": "0.1.0",
     "main": "dist/pipeline.js",
     "author": {
         "name": "Darlan Alves",

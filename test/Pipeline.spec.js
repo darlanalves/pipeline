@@ -83,7 +83,7 @@ describe('Pipeline', function() {
                     this.count = 0;
                 }
 
-                request (input) {
+                request(input) {
                     this.count++;
 
                     let id = input.value;
@@ -111,7 +111,7 @@ describe('Pipeline', function() {
                     this.count = 0;
                 }
 
-                request (input) {
+                request(input) {
                     this.count++;
                     let id = input.value;
 
@@ -132,7 +132,7 @@ describe('Pipeline', function() {
             pipeline.push(http);
 
             // a top-level API that uses the pipeline to execute a task
-            function findById (id) {
+            function findById(id) {
                 return pipeline.run(id);
             }
 
@@ -144,7 +144,7 @@ describe('Pipeline', function() {
 
             let results = [];
 
-            findById(123).then(user => results.push(user)).then(function () {
+            findById(123).then(user => results.push(user)).then(function() {
                 // repeat the request to trigger the cache this time
                 findById(123).then(user => results.push(user));
             });
@@ -170,7 +170,7 @@ describe('Pipeline', function() {
             pipeline.push({});
             pipeline.push({});
 
-            function test () {
+            function test() {
                 pipeline.run();
             }
 
@@ -196,6 +196,46 @@ describe('Pipeline', function() {
                 expect(result.message).toBe('The input is not processable');
                 done();
             }, 20);
+        });
+
+        it('should invoke the response handlers starting where the request was fulfilled and going backwards', function (done) {
+            let pipeline = new Pipeline();
+
+            let stepOne = {
+                request: input => input.next(),
+                response: output => output + ' one'
+            };
+
+            let stepTwo = {
+                request: input => input.resolve('ok'),
+                response: output => output + ' two'
+            };
+
+            let stepThree = {
+                request: input => input.next(),
+                response: output => output + ' three'
+            };
+
+            let stepFour = {
+                request: input => input.next(),
+                response: output => output + ' NOPE'
+            };
+
+            pipeline.push(stepOne);
+            pipeline.push(stepTwo);
+            pipeline.push(stepThree);
+            pipeline.push(stepFour);
+
+            let result;
+            pipeline.run().then(function(e) {
+                result = e;
+            });
+
+            setTimeout(function () {
+                // ok from the response + the 3 steps in reverse
+                expect(result).toBe('ok two one');
+                done();
+            }, 50);
         });
     });
 });

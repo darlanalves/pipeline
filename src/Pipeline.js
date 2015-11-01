@@ -47,6 +47,8 @@ class PipelineContext {
                     method: step.request,
                     context: step
                 });
+            } else {
+                stepGroups.request.push(null)
             }
 
             if (step.requestError) {
@@ -54,6 +56,8 @@ class PipelineContext {
                     method: step.requestError,
                     context: step
                 });
+            } else {
+                stepGroups.requestError.push(null)
             }
 
             if (step.response) {
@@ -61,6 +65,8 @@ class PipelineContext {
                     method: step.response,
                     context: step
                 });
+            } else {
+                stepGroups.response.push(null)
             }
 
             if (step.responseError) {
@@ -68,10 +74,14 @@ class PipelineContext {
                     method: step.responseError,
                     context: step
                 });
+            } else {
+                stepGroups.responseError.push(null)
             }
         });
 
-        if (!stepGroups.request.length) {
+        let validPipeline = stepGroups.request.some(step => step !== null)
+
+        if (!validPipeline) {
             throw new Error('This pipeline cannot handle requests');
         }
 
@@ -94,10 +104,16 @@ class PipelineContext {
         let result = Promise.resolve(this.value);
 
         if (processors.length) {
-            // chain output processors into a stream of promises
-            result = processors.reduce(function(promise, processor) {
-                return promise.then(value => processor.method.call(processor.context, value));
-            }, result);
+            // chain output processors into a stream of promises, but in reverse order,
+            // starting from the index where the result was dispatched
+            let index = this.index + 1;
+
+            while (index--) {
+                let processor = processors[index];
+                if (!processor) continue;
+
+                result = result.then(value => processor.method.call(processor.context, value));
+            }
         }
 
         this.__resolve(result);
