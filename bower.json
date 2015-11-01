@@ -1,0 +1,26 @@
+{
+    "name": "pipeline",
+    "description": "A bidirectional pipeline to chain data processing (similar to streams)",
+    "version": "0.1.0",
+    "main": "dist/pipeline.js",
+    "author": {
+        "name": "Darlan Alves",
+        "email": "me@darlanalv.es"
+    },
+    "license": "MIT",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "karma*",
+        "gulpfile.js",
+        "babel.options.js",
+        "build.template.js",
+        "promise.min.js"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/darlanalves/pipeline"
+    }
+}
