@@ -19,7 +19,7 @@ function buildRelease() {
 
 	multipipe(
 		gulp.src('src/**/*.js'),
-		concat('pipeline.js'),
+		concat('jspipe.js'),
 		babel(babelOptions),
 		wrap(wrapper),
 		gulp.dest('dist'),

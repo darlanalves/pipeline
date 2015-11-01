@@ -1,18 +1,15 @@
 (function(global) {
-	'use strict';
 
-	/* content goes here */
+    /* content goes here */
 
-	// TODO: replace MyLibrary with the actual library name
-
-	if (typeof define === 'function' && define.amd) {
-		define(function() {
-			return MyLibrary;
-		});
-	} else if (typeof module !== 'undefined' && module.exports) {
-		module.exports = MyLibrary;
-	} else {
-		global.MyLibrary = MyLibrary;
-	}
+    if (typeof define === 'function' && define.amd) {
+        define('jspipe', function() {
+            return Pipeline;
+        });
+    } else if (typeof module !== 'undefined' && module.exports) {
+        module.exports = Pipeline;
+    } else {
+        global.Pipeline = Pipeline;
+    }
 
 })(this);

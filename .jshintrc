@@ -1,5 +1,9 @@
 {
-	"globals": {},
+	"globals": {
+		"angular": true,
+		"inject": true,
+		"module": true
+	},
 	"strict": false,
 	"node": true,
 	"undef": true,
